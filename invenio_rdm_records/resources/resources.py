@@ -293,6 +293,7 @@ class IIIFResource(ErrorHandlersMixin, Resource):
         file_ = self.service.get_file(uuid=uuid, identity=g.identity, key=key)
         return file_, 200
 
+    @cross_origin(origin="*", methods=["GET"])
     @with_iiif_content_negotiation(IIIFInfoV2JSONSerializer)
     @iiif_request_view_args
     @response_handler()
@@ -303,6 +304,7 @@ class IIIFResource(ErrorHandlersMixin, Resource):
             )
         raise RedirectException(item["links"]["iiif_info"])
 
+    @cross_origin(origin="*", methods=["GET"])
     @with_iiif_content_negotiation(IIIFInfoV2JSONSerializer)
     @iiif_request_view_args
     @response_handler()
@@ -313,7 +315,7 @@ class IIIFResource(ErrorHandlersMixin, Resource):
                 uuid=resource_requestctx.view_args["uuid"],
             )
         return item.to_dict(), 200
-
+    @cross_origin(origin="*", methods=["GET"])
     @iiif_request_view_args
     def image_api(self):
         """IIIF API Implementation.

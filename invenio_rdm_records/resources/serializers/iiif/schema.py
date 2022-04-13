@@ -9,7 +9,7 @@
 
 """IIIF Presentation API Schema for Invenio RDM Records."""
 
-from marshmallow import Schema, fields, missing
+from marshmallow import Schema, fields, missing, post_dump
 from marshmallow_utils.fields.nestedattr import AttributeAccessorFieldMixin
 
 
@@ -65,11 +65,11 @@ class IIIFInfoV2Schema(Schema):
             "@context": fields.Constant(
                 "http://iiif.io/api/image/2/context.json"
             ),
-            "@id": fields.String(attribute="links.iiif_info"),
+            "@id": fields.String(attribute="links.iiif_base"),
         }
 
-    protocol = (fields.Constant("http://iiif.io/api/image"),)
-    profile = (fields.Constant(["http://iiif.io/api/image/2/level2.json"]),)
+    protocol = fields.Constant("http://iiif.io/api/image")
+    profile = fields.Constant(["http://iiif.io/api/image/2/level2.json"])
     tiles = fields.Constant(
         [{"width": 256, "scaleFactors": [1, 2, 4, 8, 16, 32, 64]}]
     )
@@ -88,7 +88,7 @@ class IIIFImageServiceV2Schema(Schema):
             "@context": fields.Constant(
                 "http://iiif.io/api/image/2/context.json"
             ),
-            "@id": fields.String(attribute="links.iiif_info"),
+            "@id": fields.String(attribute="links.iiif_base"),
             "profile": fields.Constant(
                 "http://iiif.io/api/image/2/level1.json"
             ),
@@ -213,3 +213,8 @@ class IIIFManifestV2Schema(Schema):
                 "value": obj["metadata"]["publication_date"],
             }
         ]
+
+    @post_dump
+    def sortcanvases(self, manifest, many, **kwargs):
+        manifest['sequences'][0]['canvases'].sort(key = lambda x: x['@id'])
+        return manifest
